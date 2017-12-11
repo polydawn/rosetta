@@ -45,6 +45,41 @@ func TestEnvelope(t *testing.T) {
 	})
 }
 
+func TestCiphersAndEnvelope(t *testing.T) {
+	fixtureStruct := struct {
+		cleartext []byte
+		key       []byte
+	}{
+		[]byte("blah blah blah"),
+		make([]byte, 32),
+	}
+	// FIXME: the nonce here is currently wrong and a TODO
+	//  (the ciphertext will also change when this is fixed)
+	fixtureEnvelope := strings.Trim(strings.Replace(`
+		-----BEGIN ROSETTA CIPHERTEXT-----
+		cipher: nacl
+		nonce: AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+		
+		6P47is7Om2nyyNZ/vkErPqRS2pfe56JNg/6VsCOc
+		-----END ROSETTA CIPHERTEXT-----
+	`, "\t", "", -1), "\n") + "\n"
+
+	t.Run("EncryptAndEnvelopeBytes", func(t *testing.T) {
+		raw, err := EncryptAndEnvelopeBytes(fixtureStruct.cleartext, fixtureStruct.key)
+		if err != nil {
+			t.Fatalf("%s", err)
+		}
+		wantStringEqual(t, fixtureEnvelope, string(raw))
+	})
+	t.Run("UnenvelopeAndDecryptBytes", func(t *testing.T) {
+		cleartext, err := UnenvelopeAndDecryptBytes([]byte(fixtureEnvelope), fixtureStruct.key)
+		if err != nil {
+			t.Fatalf("%s", err)
+		}
+		wantStringEqual(t, string(fixtureStruct.cleartext), string(cleartext))
+	})
+}
+
 func wantStringEqual(t *testing.T, a, b string) {
 	t.Helper()
 	result, err := difflib.GetUnifiedDiffString(difflib.UnifiedDiff{
