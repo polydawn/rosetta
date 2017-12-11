@@ -91,6 +91,26 @@ Further TODO support:
 
 
 
+Getting Rosetta
+---------------
+
+### Binary releases
+
+Hang on.  Coming soon.
+
+
+### Building from source
+
+Rosetta is a Golang project.  You'll need a reasonably recent Golang
+compiler, git, bash, and that's about it.
+
+- clone this repo
+- `git submodule update --init` -- this will fetch all the libraries
+- `./go install cmd/rosetta` -- build it
+- `./bin/rosetta` -- ya ta!
+
+
+
 Cipher choices
 --------------
 
