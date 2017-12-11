@@ -29,7 +29,7 @@ Most of the CLI is still coming.  Hang on.
 - Ciphers suites:
   - [nacl](https://godoc.org/golang.org/x/crypto/nacl/secretbox): ☑ supported.
   - anything else: PRs welcome.
-- Password-derived keys: TODO
+- Password-derived keys: ☑ supported.
 - CLI:
   - operations...
     - encrypt/decrypt: TODO
