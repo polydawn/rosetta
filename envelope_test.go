@@ -53,14 +53,12 @@ func TestCiphersAndEnvelope(t *testing.T) {
 		[]byte("blah blah blah"),
 		make([]byte, 32),
 	}
-	// FIXME: the nonce here is currently wrong and a TODO
-	//  (the ciphertext will also change when this is fixed)
 	fixtureEnvelope := strings.Trim(strings.Replace(`
 		-----BEGIN ROSETTA CIPHERTEXT-----
 		cipher: nacl
-		nonce: AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+		nonce: 76fajVoZSaB7RHYVqw1Rl/7sRPTzqAoL
 		
-		6P47is7Om2nyyNZ/vkErPqRS2pfe56JNg/6VsCOc
+		ZYdMJmTQE0kSVM/E8EqjhLmA7eQQhJTOS6mDBykI
 		-----END ROSETTA CIPHERTEXT-----
 	`, "\t", "", -1), "\n") + "\n"
 

@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"golang.org/x/crypto/nacl/secretbox"
+	"golang.org/x/crypto/sha3"
 
 	"github.com/polydawn/rosetta/cipher"
 )
@@ -24,10 +25,9 @@ func EncryptBytes(
 	copy(k2[:], key)
 
 	// Fabricate a nonce.
+	nonce = deriveNonce(cleartext, key)
 	n2 := [24]byte{}
-	// TODO nonce=HMAC(key, cleartext)
-	nonce = make([]byte, 24)
-	copy(nonce, n2[:])
+	copy(n2[:], nonce)
 
 	// Misc setup.
 	prefix := []byte{} // nacl interface supports a prefix for some reason, but we don't use this.
@@ -35,6 +35,37 @@ func EncryptBytes(
 	// Run cipher!
 	ciphertext = secretbox.Seal(prefix, cleartext, &n2, &k2)
 	return ciphertext, nonce, nil
+}
+
+// Derive a nonce deterministically from the cleartext and key, using an HMAC
+// construction.  This is deterministic, but gives away no information about
+// the cleartext unless you hold the key, aside from obviously revealing when
+// the same cleartext is encrypted under the same key more than once (the
+// same nonce, and thereafter the same ciphertext, will result).
+func deriveNonce(cleartext cipher.Cleartext, key cipher.Key) cipher.Nonce {
+	// This is implemented using the Keccak construction,
+	// because Poly1305 documents itself as being unsafe to use twice with
+	// the same key, which is a heck of a limitation.
+	//
+	// The requirement of nonces in Poly1305 is documented in the first
+	// paragraph of the "Design decisions" section (page 6) of the paper:
+	// https://cr.yp.to/mac/poly1305-20050329.pdf
+	//
+	// The reasoning there isn't exactly *unsound* per se, but it does seem
+	// to make Poly1305 fairly impossible to use here.
+	//
+	// The use of Keccak here eschews HMAC wrapping because it can:
+	// since Keccak is not subject to length-extension, this is a
+	// well-documented and valid way to use it for a MAC-like role.
+	// https://godoc.org/golang.org/x/crypto/sha3#example-package--Mac
+	// We use the 128 variant rather than 256 since we'll be trucating
+	// our output down to 24 bytes for the nacl hash anyway.
+	nonce := make([]byte, 24)
+	d := sha3.NewShake128()
+	d.Write(key)
+	d.Write(cleartext)
+	d.Read(nonce)
+	return nonce
 }
 
 var _ cipher.DecryptBytesTool = DecryptBytes
