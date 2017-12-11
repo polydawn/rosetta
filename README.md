@@ -17,6 +17,33 @@ It's easy to use both in local development and can be scripted for use in CI.
 
 
 
+Development Status
+------------------
+
+Alpha.  As with anything computerful, use at your own risk.
+
+Most of the CLI is still coming.  Hang on.
+
+- Ciphers suites:
+  - [nacl](https://godoc.org/golang.org/x/crypto/nacl/secretbox): ☑ supported.
+  - anything else: PRs welcome.
+- Password-derived keys: TODO
+- CLI:
+  - operations...
+    - encrypt/decrypt: TODO
+    - encryptFile/decryptFile: TODO
+    - keyderive (standalone): TODO
+    - bulk file mode: TODO
+  - getting keys from...
+    - password args: TODO
+	- password env: TODO
+	- key args: TODO
+	- key env: TODO
+	- key filename in args: TODO
+	- key filename in env: TODO
+
+
+
 CLI
 ---
 
