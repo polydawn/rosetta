@@ -15,6 +15,8 @@ Because of the deterministic encryption, base64 ascii armor, and scriptable CLI,
 Rosetta is a great fit for keeping secrets in a git repo, encrypted.
 It's easy to use both in local development and can be scripted for use in CI.
 
+---
+
 
 
 Development Status
@@ -41,6 +43,8 @@ Most of the CLI is still coming.  Hang on.
 	- key env: TODO
 	- key filename in args: TODO
 	- key filename in env: TODO
+
+---
 
 
 
@@ -82,6 +86,8 @@ Further TODO support:
   - we should do that for the key, too, so you don't *have* to
     flush that to disk in order to cache a key derivation.
 
+---
+
 
 
 Cipher choices
@@ -95,6 +101,8 @@ ciphertext cannot be modified without holding the key.
 If using passwords to derive keys, the well-standardized `scrypt` system
 is used to generate a strong key.
 
+---
+
 
 
 Storage format
@@ -103,6 +111,8 @@ Storage format
 PEM -- RFC 1421 -- is Rosetta's storage format of choice.
 PEM is probably already familiar to you as the format you see in encrypted
 SSH keys, or TLS certificates, and other similar applications.
+
+---
 
 
 
@@ -138,3 +148,5 @@ archeology is part of your threat model, don't use those features.
 There is no attempt to keep you from using "12345" as a password.
 
 Rosetta trusts you to do the right thing.
+
+---
