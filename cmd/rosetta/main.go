@@ -37,7 +37,7 @@ func Main(args []string, stdin io.Reader, stdout, stderr io.Writer) int {
 		cli.Command{
 			Category: "basic",
 			Name:     "encrypt",
-			Usage:    "encrypt a stream fed to stdin, print to stdout",
+			Usage:    "encrypt a cleartext fed to stdin, print ciphertext to stdout",
 			Flags: []cli.Flag{
 				cli.StringFlag{
 					Name:  "p",
@@ -65,6 +65,40 @@ func Main(args []string, stdin io.Reader, stdout, stderr io.Writer) int {
 				}
 
 				_, err = stdout.Write(enveloped)
+				return err
+			},
+		},
+		cli.Command{
+			Category: "basic",
+			Name:     "decrypt",
+			Usage:    "decrypt a ciphertext fed to stdin, print cleartext to stdout",
+			Flags: []cli.Flag{
+				cli.StringFlag{
+					Name:  "p",
+					Usage: "password (will be strengthed into key)",
+				},
+				cli.StringFlag{
+					Name:  "k",
+					Usage: "key (in base64)",
+				},
+			},
+			Action: func(c *cli.Context) error {
+				key, err := processKeyArgs(c)
+				if err != nil {
+					return err
+				}
+
+				enveloped, err := ioutil.ReadAll(stdin)
+				if err != nil && err != io.EOF {
+					return err
+				}
+
+				cleartext, err := rosetta.UnenvelopeAndDecryptBytes(enveloped, key)
+				if err != nil {
+					return err
+				}
+
+				_, err = stdout.Write(cleartext)
 				return err
 			},
 		},
