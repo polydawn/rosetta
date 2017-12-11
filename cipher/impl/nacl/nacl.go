@@ -1,0 +1,72 @@
+package nacl
+
+import (
+	"fmt"
+
+	"golang.org/x/crypto/nacl/secretbox"
+
+	"github.com/polydawn/rosetta/cipher"
+)
+
+var _ cipher.EncryptBytesTool = EncryptBytes
+
+func EncryptBytes(
+	cleartext cipher.Cleartext, key cipher.Key,
+) (
+	ciphertext cipher.Ciphertext, nonce cipher.Nonce, err error,
+) {
+	// Format the key: nacl wants a 32 byte key, but our type is not so
+	//  specific, so we must check and flip that.
+	k2 := [32]byte{}
+	if len(key) != 32 {
+		return nil, nil, fmt.Errorf("invalid key: nacl keys must be 32 bytes (not %d)", len(key))
+	}
+	copy(k2[:], key)
+
+	// Fabricate a nonce.
+	n2 := [24]byte{}
+	// TODO nonce=HMAC(key, cleartext)
+	nonce = make([]byte, 24)
+	copy(nonce, n2[:])
+
+	// Misc setup.
+	prefix := []byte{} // nacl interface supports a prefix for some reason, but we don't use this.
+
+	// Run cipher!
+	ciphertext = secretbox.Seal(prefix, cleartext, &n2, &k2)
+	return ciphertext, nonce, nil
+}
+
+var _ cipher.DecryptBytesTool = DecryptBytes
+
+func DecryptBytes(
+	ciphertext cipher.Ciphertext, key cipher.Key, nonce cipher.Nonce,
+) (
+	cleartext cipher.Cleartext, err error,
+) {
+	// Format the key: nacl wants a 32 byte key, but our type is not so
+	//  specific, so we must check and flip that.
+	k2 := [32]byte{}
+	if len(key) != 32 {
+		return nil, fmt.Errorf("invalid key: nacl keys must be 32 bytes (not %d)", len(key))
+	}
+	copy(k2[:], key)
+
+	// Format the nonce: nacl wants a 24 byte nonce, but our type is not so
+	//  specific, so we must check and flip that.
+	n2 := [24]byte{}
+	if len(nonce) != 24 {
+		return nil, fmt.Errorf("invalid nonce: nacl nonce must be 24 bytes (not %d)", len(key))
+	}
+	copy(n2[:], nonce)
+
+	// Misc setup.
+	reuseMemory := []byte{} // nacl interface supports reusing existing byte slices, but we don't use this.
+
+	// Run cipher!
+	cleartext, success := secretbox.Open(reuseMemory, ciphertext, &n2, &k2)
+	if !success {
+		return nil, fmt.Errorf("decryption failed") // no reason!  :/
+	}
+	return cleartext, nil
+}
