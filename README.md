@@ -24,7 +24,8 @@ Development Status
 
 Alpha.  As with anything computerful, use at your own risk.
 
-Most of the CLI is still coming.  Hang on.
+The core pathway -- encrypt and decrypt piping stdin/stdout -- is available.
+More convenient CLI options are still coming.  Hang on.
 
 - Ciphers suites:
   - [nacl](https://godoc.org/golang.org/x/crypto/nacl/secretbox): ☑ supported.
@@ -32,12 +33,12 @@ Most of the CLI is still coming.  Hang on.
 - Password-derived keys: ☑ supported.
 - CLI:
   - operations...
-    - encrypt/decrypt: TODO
+    - encrypt/decrypt: ☑ supported.
     - encryptFile/decryptFile: TODO
     - keyderive (standalone): TODO
     - bulk file mode: TODO
   - getting keys from...
-    - password args: TODO
+    - password args: ☑ supported.
 	- password env: TODO
 	- key args: TODO
 	- key env: TODO
