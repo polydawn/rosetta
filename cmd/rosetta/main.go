@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/base64"
 	"fmt"
 	"io"
 	"io/ioutil"
@@ -37,8 +38,21 @@ func Main(args []string, stdin io.Reader, stdout, stderr io.Writer) int {
 			Category: "basic",
 			Name:     "encrypt",
 			Usage:    "encrypt a stream fed to stdin, print to stdout",
+			Flags: []cli.Flag{
+				cli.StringFlag{
+					Name:  "p",
+					Usage: "password (will be strengthed into key)",
+				},
+				cli.StringFlag{
+					Name:  "k",
+					Usage: "key (in base64)",
+				},
+			},
 			Action: func(c *cli.Context) error {
-				key := cipher.Key{} // TODO cram key-gettery into helper method
+				key, err := processKeyArgs(c)
+				if err != nil {
+					return err
+				}
 
 				cleartext, err := ioutil.ReadAll(stdin)
 				if err != nil && err != io.EOF {
@@ -63,4 +77,23 @@ func Main(args []string, stdin io.Reader, stdout, stderr io.Writer) int {
 		return 1
 	}
 	return 0
+}
+
+func processKeyArgs(c *cli.Context) (cipher.Key, error) {
+	switch {
+	case c.IsSet("p"):
+		if c.IsSet("k") {
+			return nil, fmt.Errorf("EITHER the '-k' or '-p' flag must be provided, not both")
+		}
+		password := c.String("p")
+		// Key length param should vary based on suite, but since we only have the one right now...
+		return rosetta.DeriveKey([]byte(password), 32)
+	case c.IsSet("k"):
+		if c.IsSet("p") {
+			return nil, fmt.Errorf("EITHER the '-k' or '-p' flag must be provided, not both")
+		}
+		return base64.StdEncoding.DecodeString(c.String("k"))
+	default:
+		return nil, fmt.Errorf("either the '-k' or '-p' flag must be provided")
+	}
 }
