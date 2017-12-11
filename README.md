@@ -17,6 +17,46 @@ It's easy to use both in local development and can be scripted for use in CI.
 
 
 
+CLI
+---
+
+The Rosetta CLI is straightforward:
+
+  - `rosetta encrypt -k <keyfile> [-s <suite>]` -- streaming/pipe mode
+  - `rosetta encrypt -p <password> [-s <suite>]` -- streaming/pipe mode
+  - `rosetta encryptFile -k <keyfile> [-s <suite>] <cleartextPath> <ciphertextPath>`
+  - `rosetta encryptFile -p <password> [-s <suite>] <cleartextPath> <ciphertextPath>`
+  - `rosetta decrypt -k <keyfile> [-s <suite>]` -- streaming/pipe mode
+  - `rosetta decrypt -p <password> [-s <suite>]` -- streaming/pipe mode
+  - `rosetta decryptFile -k <keyfile> [-s <suite>] <ciphertextPath> <cleartextPath>`
+  - `rosetta decryptFile -p <password> [-s <suite>] <ciphertextPath> <cleartextPath>`
+  - `rosetta keyderive -p <password> <keyfile>` -- use to do the PBE just once;
+    this is useful to save time for scripts that are about to do a ton of
+    individual operations, because `-k` mode is generally ~100ms faster than `-p`.
+
+The `encryptFile` commands are interchangable with
+`cat cleartextPath | rosetta encrypt > ciphertextPath`, or even
+`rosetta encrypt < cleartextPath > ciphertextPath` if you'd like to avoid `cat`,
+and the same is correspondingly true for `decryptFile` and `decrypt`.
+
+(TODO) a mode for operating on many files at once might also be useful:
+
+  - `rosetta encryptFilesBulk -p <password> [-s <suite>]
+    --clearBase <cleartextBasePath> --cipherBase <ciphertextBasePath>
+    <files>...` -- you can clearly do this yourself in a script, but
+    this will automate doing the keyfile derive once, prettyprint each
+    operation, etc.
+  - `rosetta encryptFilesBulk -k <keyfile> ...` -- as above, with keyfile.
+
+Further TODO support:
+
+  - any of the above `-p` modes should also support a `--envpw` flag,
+    which switches it to reading an env var for the password.
+  - we should do that for the key, too, so you don't *have* to
+    flush that to disk in order to cache a key derivation.
+
+
+
 Cipher choices
 --------------
 
