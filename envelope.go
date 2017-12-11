@@ -7,6 +7,7 @@ import (
 	"fmt"
 
 	"github.com/polydawn/rosetta/cipher"
+	"github.com/polydawn/rosetta/cipher/impl/nacl"
 )
 
 func EncryptFile(
@@ -66,7 +67,7 @@ func EncryptBytes(
 ) (
 	ciphertext cipher.Ciphertext, nonce cipher.Nonce, err error,
 ) {
-	return nil, nil, nil
+	return nacl.EncryptBytes(cleartext, key)
 }
 
 func DecryptBytes(
@@ -74,7 +75,7 @@ func DecryptBytes(
 ) (
 	cleartext cipher.Cleartext, err error,
 ) {
-	return nil, nil
+	return nacl.DecryptBytes(ciphertext, key, nonce)
 }
 
 /*
