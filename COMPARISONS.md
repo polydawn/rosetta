@@ -27,3 +27,7 @@ starting to write Rosetta.  At the time of writing, several things Looks
   - Oh, also it doesn't do deterministic encryption, because it picks a fresh salt every time.  Also also it *does that wrong*, picking from `math/rand` rather than secure random.  Not that that's cataclysmic for a salt, but, plz.
 - https://github.com/xrstf/boxer
   - has no CLI.  the nacl API is not complex enough that another wrapper library is necessary.
+- https://github.com/justwatchcom/gopass
+  - This is an extremely mature project, unlike most of the other listed, and probably great... if want you want is a password manager.
+  - As previously commented: we want deterministic encryption, and we want simple scripting, and non-interactive use.  Gopass scores partial points on only some of these requirements.
+  - `gopass` exec's out to the system `gpg` command, which is almost as irritating of an API to version against or ship itself as `openssl`.  Rosetta does not and will not depend on such things.  Rosetta is pure go and easy to cross compile and ship anywhere.
