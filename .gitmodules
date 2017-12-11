@@ -4,3 +4,6 @@
 [submodule ".gopath/src/github.com/pmezard/go-difflib"]
 	path = .gopath/src/github.com/pmezard/go-difflib
 	url = https://github.com/pmezard/go-difflib
+[submodule ".gopath/src/github.com/urfave/cli"]
+	path = .gopath/src/github.com/urfave/cli
+	url = https://github.com/urfave/cli
