@@ -1,6 +1,11 @@
 package rosetta
 
 import (
+	"bytes"
+	"encoding/base64"
+	"encoding/pem"
+	"fmt"
+
 	"github.com/polydawn/rosetta/cipher"
 )
 
@@ -29,11 +34,31 @@ func UnenvelopeAndDecryptBytes(raw []byte, key cipher.Key) (cipher.Cleartext, er
 }
 
 func EnvelopeBytes(ciphertext cipher.Ciphertext, headers map[string]string) ([]byte, error) {
-	return nil, nil
+	block := pem.Block{
+		Type:    "ROSETTA CIPHERTEXT",
+		Headers: headers,
+		Bytes:   ciphertext,
+	}
+	var buf bytes.Buffer
+	if err := pem.Encode(&buf, &block); err != nil {
+		panic(err) // we're writing to an in-memory buffer... not much can go wrong
+	}
+	return buf.Bytes(), nil
 }
 
 func UnenvelopeBytes(raw []byte) (body cipher.Ciphertext, headers map[string]string, err error) {
-	return nil, nil, nil
+	block, rest := pem.Decode(raw)
+	if block == nil {
+		return nil, nil, fmt.Errorf("invalid envelope: this doesn't look like a ciphertext at all! no envelope header found")
+	}
+	_ = rest // TODO check for non-whitespace leftovers... those actually indicate error
+	if block.Type == "" {
+		return nil, nil, fmt.Errorf("invalid envelope: this doesn't look like a ciphertext at all")
+	}
+	if block.Type != "ROSETTA CIPHERTEXT" {
+		return nil, nil, fmt.Errorf("invalid envelope: this doesn't look like a rosetta ciphertext")
+	}
+	return block.Bytes, block.Headers, nil
 }
 
 func EncryptBytes(
