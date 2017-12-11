@@ -42,6 +42,21 @@ SSH keys, or TLS certificates, and other similar applications.
 Caveats
 -------
 
+### file size
+
+There is no strict limit to the size of file that can be encrypted with
+Rosetta, but it's not designed with multi-gigabyte ISOs in mind either.
+Rosetta may allocate `O(n)` memory proportional to the size of your file
+when operating on it (both `nacl` and the PEM libraries we use require
+the full content to be in memory at once), and since our storage format
+involves Base64 encoding, the ciphertext file will be somewhat larger
+than the original cleartext file.
+
+But for any reasonably sized human-written document, yeah, chill out.
+It's fine.
+
+### security
+
 You are responsible for the security of the device on which you run this program.
 
 Fundamentally, if you decrypt a secret on an untrusted device, you lose.
