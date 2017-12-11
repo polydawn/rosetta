@@ -27,11 +27,41 @@ func DecryptFile(
 }
 
 func EncryptAndEnvelopeBytes(cleartext cipher.Cleartext, key cipher.Key) ([]byte, error) {
-	return nil, nil
+	ciphertext, nonce, err := EncryptBytes(cleartext, key)
+	if err != nil {
+		return nil, err
+	}
+	headers := map[string]string{
+		"cipher": "nacl",
+		"nonce":  base64.StdEncoding.EncodeToString(nonce),
+	}
+	return EnvelopeBytes(ciphertext, headers)
 }
 
 func UnenvelopeAndDecryptBytes(raw []byte, key cipher.Key) (cipher.Cleartext, error) {
-	return nil, nil
+	ciphertext, headers, err := UnenvelopeBytes(raw)
+	if err != nil {
+		return nil, err
+	}
+	if cipherHeader, ok := headers["cipher"]; ok {
+		switch cipherHeader {
+		case "nacl":
+			// good.  also, only one we have, so no logic here.
+		default:
+			return nil, fmt.Errorf("invalid envelope: unsupported cipher %q", cipherHeader)
+		}
+	} else {
+		return nil, fmt.Errorf("invalid envelope: missing required header %q", "cipher")
+	}
+	var nonce cipher.Nonce
+	if nonceHeader, ok := headers["nonce"]; ok {
+		nonceStr, err := base64.StdEncoding.DecodeString(nonceHeader)
+		if err != nil {
+			return nil, fmt.Errorf("error opening envelope: could not decode nonce")
+		}
+		nonce = []byte(nonceStr)
+	}
+	return DecryptBytes(ciphertext, key, nonce)
 }
 
 func EnvelopeBytes(ciphertext cipher.Ciphertext, headers map[string]string) ([]byte, error) {
